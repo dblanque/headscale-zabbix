@@ -22,7 +22,16 @@ These keys should not ever be stored remotely in the Zabbix Server.
 
 * Headscale Service Enabled Monitoring
   * Headscale Service Status Monitoring (Will only alert if there's no Service Disabled Trigger)
-* Headscale Version 
+* Headscale Version Alerting (Git Tag Monitoring)
+* (Some) Headscale Statistics
+  * General Node Count
+  * Online Node Count
+  * User Count
+* Headscale Router Node LLD (Low Level Discovery)
+  * Router Node Status
+  * Router Node IP Addresses
+  * Router Node Approved Routes
+  * Router Node Available Routes
 
 ## Installation
 
