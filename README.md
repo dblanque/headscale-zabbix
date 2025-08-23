@@ -20,6 +20,10 @@ These keys should not ever be stored remotely in the Zabbix Server.
 
 ## Functionalities
 
+* Headscale Service Enabled Monitoring
+  * Headscale Service Status Monitoring (Will only alert if there's no Service Disabled Trigger)
+* Headscale Version 
+
 ## Installation
 
 If you use `zabbix_agentd` it should also be compatible, but I use

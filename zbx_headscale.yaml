@@ -127,11 +127,35 @@ zabbix_export:
               recovery_mode: RECOVERY_EXPRESSION
               recovery_expression: 'changecount(/Headscale/headscale.version,15m,"all")=0'
               name: 'Headscale Version has changed'
-              priority: WARNING
+              priority: INFO
               manual_close: 'YES'
               tags:
                 - tag: Application
                   value: Headscale
+        - uuid: 631c34be5bbb4b6b8e589c0485be797e
+          name: 'Headscale: Version (Git)'
+          type: HTTP_AGENT
+          key: headscale.version.git
+          delay: 1h
+          value_type: TEXT
+          trends: '0'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.first()
+            - type: JSONPATH
+              parameters:
+                - $.name
+            - type: LTRIM
+              parameters:
+                - v
+          url: 'https://api.github.com/repos/juanfont/headscale/tags'
+          headers:
+            - name: User-Agent
+              value: 'Zabbix HTTP Agent'
+          tags:
+            - tag: Application
+              value: Headscale
       discovery_rules:
         - uuid: e09fd5d9884d49a2920292157d0f15e8
           name: 'Headscale Router Nodes Discovery'
@@ -237,3 +261,8 @@ zabbix_export:
       tags:
         - tag: Application
           value: Headscale
+  triggers:
+    - uuid: a3f4292ab7c64d4980815a1f9d67b067
+      expression: 'last(/Headscale/headscale.version,#1)<>last(/Headscale/headscale.version.git,#1)'
+      name: 'Headscale has a new Version Available'
+      priority: WARNING
