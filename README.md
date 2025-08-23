@@ -22,13 +22,28 @@ These keys should not ever be stored remotely in the Zabbix Server.
 
 ## Installation
 
+If you use `zabbix_agentd` it should also be compatible, but I use
+`zabbix_agent2`. You may need to change the paths to accomodate using the V1
+agent.
+
 ### Headscale Configuration
+
+To configure this template you must execute the following commands (or add
+the sudoers/zabbix files manually).
+
+#### Sudoers Files
+```
+curl --create-dirs -o /etc/sudoers.d/ https://raw.githubusercontent.com/dblanque/headscale-zabbix/main/sudoers.d/zabbix_headscale && \
+chmod 0440 /etc/sudoers.d/zabbix_headscale && visudo -c
+```
+
+#### Zabbix Config Files
+```
+curl --create-dirs -o /etc/zabbix/zabbix_agent2.d/ https://raw.githubusercontent.com/dblanque/headscale-zabbix/main/zabbix_agent2.d
+```
+
+After this you may need to **Restart your Zabbix Agent**.
 
 ### Zabbix Configuration
 
-To enable this template you must add the following custom keys in the Zabbix
-Service Configuration file directory.
-
-```
-```
-
+Import the YAML Template and link it to your Headscale Host(s).
