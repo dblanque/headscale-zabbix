@@ -1,0 +1,239 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+    - uuid: a571c0d144b14fd4a87a9d9b2aa9fcd6
+      name: Templates/Applications
+  templates:
+    - uuid: bf36d2c5b2a64cdc988ca636a11d6d27
+      template: Headscale
+      name: Headscale
+      groups:
+        - name: Templates
+        - name: Templates/Applications
+      items:
+        - uuid: fd8b76ad68d548dc9c64f9f94d3861a2
+          name: 'Headscale: Nodes Count'
+          type: DEPENDENT
+          key: headscale.nodes.count
+          delay: '0'
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var value_list = JSON.parse(value);
+                  return value_list.length;
+          master_item:
+            key: headscale.nodes.json
+          tags:
+            - tag: Application
+              value: Headscale
+          triggers:
+            - uuid: 2f0d4e2f0b22404193b96ae31c13c34c
+              expression: 'changecount(/Headscale/headscale.nodes.count,1h,"dec")>=1'
+              name: 'Headscale Node Count has Decreased'
+              priority: INFO
+              tags:
+                - tag: Application
+                  value: Headscale
+            - uuid: 58c0a897529044058f1e18982935305c
+              expression: 'changecount(/Headscale/headscale.nodes.count,1h,"inc")>=1'
+              name: 'Headscale Node Count has Increased'
+              priority: INFO
+              tags:
+                - tag: Application
+                  value: Headscale
+        - uuid: 6913890ecab84eb9aaca735091d39e21
+          name: 'Headscale: Nodes JSON List'
+          key: headscale.nodes.json
+          delay: 5m
+          value_type: TEXT
+          trends: '0'
+          tags:
+            - tag: Application
+              value: Headscale
+        - uuid: e3220e20859c44858a1bc4b20dfd79c8
+          name: 'Headscale: Online Nodes'
+          type: DEPENDENT
+          key: headscale.nodes.online
+          delay: '0'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$[*].online'
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '[]'
+            - type: JAVASCRIPT
+              parameters:
+                - 'return JSON.parse(value).length;'
+          master_item:
+            key: headscale.nodes.json
+          tags:
+            - tag: Application
+              value: Headscale
+        - uuid: 25ce34a7da264e22a377b554dc263672
+          name: 'Headscale: Service Active'
+          key: headscale.service.active
+          tags:
+            - tag: Application
+              value: Headscale
+          triggers:
+            - uuid: ce5655f961e74f31801683c5b5989058
+              expression: 'last(/Headscale/headscale.service.active,#1)=0'
+              name: 'Headscale Service is DOWN'
+              priority: AVERAGE
+              dependencies:
+                - name: 'Headscale Service is Disabled'
+                  expression: 'last(/Headscale/headscale.service.enabled,#1)=0'
+              tags:
+                - tag: Application
+                  value: Headscale
+        - uuid: a23b66b2fa214a0c82f899a43e39a3d0
+          name: 'Headscale: Service Enabled'
+          key: headscale.service.enabled
+          tags:
+            - tag: Application
+              value: Headscale
+          triggers:
+            - uuid: 571faf3f3e144663b4815199cccef8d1
+              expression: 'last(/Headscale/headscale.service.enabled,#1)=0'
+              name: 'Headscale Service is Disabled'
+              priority: WARNING
+              tags:
+                - tag: Application
+                  value: Headscale
+        - uuid: 349445ec94884c7ca586c24fe8642b16
+          name: 'Headscale: Users JSON List'
+          key: headscale.users.json
+          delay: 5m
+          value_type: TEXT
+          trends: '0'
+          tags:
+            - tag: Application
+              value: Headscale
+        - uuid: 6383ed9c4ae64df6961d647612340ab6
+          name: 'Headscale: Version'
+          key: headscale.version
+          delay: 30m
+          value_type: TEXT
+          trends: '0'
+          tags:
+            - tag: Application
+              value: Headscale
+          triggers:
+            - uuid: 5f97361b5fc04c20974a6aae3d7430af
+              expression: change(/Headscale/headscale.version)=1
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'changecount(/Headscale/headscale.version,15m,"all")=0'
+              name: 'Headscale Version has changed'
+              priority: WARNING
+              manual_close: 'YES'
+              tags:
+                - tag: Application
+                  value: Headscale
+      discovery_rules:
+        - uuid: e09fd5d9884d49a2920292157d0f15e8
+          name: 'Headscale Router Nodes Discovery'
+          type: DEPENDENT
+          key: headscale.nodes.routers
+          delay: '0'
+          item_prototypes:
+            - uuid: 59f0eb603a334db583c5bb290208615b
+              name: 'Router Node {#ROUTER_NAME} ({#ROUTER_ID}) IP Addresses'
+              type: DEPENDENT
+              key: 'headscale.nodes.routers.addresses[{#ROUTER_ID}]'
+              delay: '0'
+              value_type: TEXT
+              trends: '0'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.[?(@.id == ''{#ROUTER_ID}'')].["ip_addresses"]'
+              master_item:
+                key: 'headscale.nodes.routers.json[{#ROUTER_ID}]'
+            - uuid: 3fd5f723d9d643e9843b241a7a0746ef
+              name: 'Router Node {#ROUTER_NAME} ({#ROUTER_ID}) JSON Data'
+              type: DEPENDENT
+              key: 'headscale.nodes.routers.json[{#ROUTER_ID}]'
+              delay: '0'
+              value_type: TEXT
+              trends: '0'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.[?(@.id == ''{#ROUTER_ID}'')]'
+              master_item:
+                key: headscale.nodes.json
+              tags:
+                - tag: Application
+                  value: Headscale
+            - uuid: dd7f54dc73c343178f221f52756f7c06
+              name: 'Router Node {#ROUTER_NAME} ({#ROUTER_ID}) Approved Routes'
+              type: DEPENDENT
+              key: 'headscale.nodes.routers.routes_approved[{#ROUTER_ID}]'
+              delay: '0'
+              value_type: TEXT
+              trends: '0'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.[?(@.id == ''{#ROUTER_ID}'')].[''approved_routes''].[*]'
+              master_item:
+                key: 'headscale.nodes.routers.json[{#ROUTER_ID}]'
+              tags:
+                - tag: Application
+                  value: Headscale
+            - uuid: 2020300864324885ba00a739135921c3
+              name: 'Router Node {#ROUTER_NAME} ({#ROUTER_ID}) Available Routes'
+              type: DEPENDENT
+              key: 'headscale.nodes.routers.routes_available[{#ROUTER_ID}]'
+              delay: '0'
+              value_type: TEXT
+              trends: '0'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.[?(@.id == ''{#ROUTER_ID}'')].[''available_routes''].[*]'
+              master_item:
+                key: 'headscale.nodes.routers.json[{#ROUTER_ID}]'
+              tags:
+                - tag: Application
+                  value: Headscale
+            - uuid: 99a1009bbcd340f3b8ef8c9fa709c964
+              name: 'Router Node {#ROUTER_NAME} ({#ROUTER_ID}) Status'
+              type: DEPENDENT
+              key: 'headscale.nodes.routers.status[{#ROUTER_ID}]'
+              delay: '0'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.[?(@.id == ''{#ROUTER_ID}'')].[''online''].first()'
+                - type: BOOL_TO_DECIMAL
+                  parameters:
+                    - ''
+              master_item:
+                key: 'headscale.nodes.routers.json[{#ROUTER_ID}]'
+              tags:
+                - tag: Application
+                  value: Headscale
+          master_item:
+            key: headscale.nodes.json
+          lld_macro_paths:
+            - lld_macro: '{#ROUTER_ID}'
+              path: $.id
+            - lld_macro: '{#ROUTER_NAME}'
+              path: $.given_name
+            - lld_macro: '{#ROUTES_APPROVED}'
+              path: $.approved_routes
+            - lld_macro: '{#ROUTES_AVAILABLE}'
+              path: $.available_routes
+            - lld_macro: '{#ROUTES_SUBNETS}'
+              path: $.subnet_routes
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.[?(@.approved_routes)]'
+      tags:
+        - tag: Application
+          value: Headscale
