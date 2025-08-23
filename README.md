@@ -33,7 +33,7 @@ the sudoers/zabbix files manually).
 
 #### Sudoers Files
 ```
-curl --create-dirs -o /etc/sudoers.d/ https://raw.githubusercontent.com/dblanque/headscale-zabbix/main/sudoers.d/zabbix_headscale && \
+curl --create-dirs -o /etc/sudoers.d/zabbix_headscale https://raw.githubusercontent.com/dblanque/headscale-zabbix/main/sudoers.d/zabbix_headscale && \
 chmod 0440 /etc/sudoers.d/zabbix_headscale && visudo -c
 ```
 
