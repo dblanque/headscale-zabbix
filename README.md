@@ -39,7 +39,8 @@ chmod 0440 /etc/sudoers.d/zabbix_headscale && visudo -c
 
 #### Zabbix Config Files
 ```
-curl --create-dirs -o /etc/zabbix/zabbix_agent2.d/ https://raw.githubusercontent.com/dblanque/headscale-zabbix/main/zabbix_agent2.d
+curl --create-dirs -o /etc/zabbix/zabbix_agent2.d/headscale_cleanup.py https://raw.githubusercontent.com/dblanque/headscale-zabbix/main/zabbix_agent2.d/headscale_cleanup.py
+curl --create-dirs -o /etc/zabbix/zabbix_agent2.d/headscale.conf https://raw.githubusercontent.com/dblanque/headscale-zabbix/main/zabbix_agent2.d/headscale.conf
 ```
 
 After this you may need to **Restart your Zabbix Agent**.
