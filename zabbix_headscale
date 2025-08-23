@@ -1,0 +1,20 @@
+# Headscale Zabbix Sudoer Commands
+# File: /etc/sudoers.d/zabbix_headscale
+# Author: Dylan Blanque
+# Date: 2025-08-23
+#
+# Allow read-only Headscale commands to be called through sudo
+# without a password. Remove the first '#' column to enable.
+#
+# CAUTION: Any syntax error introduced here will break sudo.
+#
+# Cmnd alias specification
+Cmnd_Alias C_HEADSCALE = \
+        /usr/bin/headscale users list -o json, \
+        /usr/bin/headscale nodes list -o json, \
+        /usr/bin/systemctl is-enabled headscale.service, \
+        /usr/bin/systemctl is-active headscale.service, \
+        /usr/bin/headscale version
+
+### allow any user to use basic read-only Headscale commands
+ALL ALL = (root) NOPASSWD: C_HEADSCALE
