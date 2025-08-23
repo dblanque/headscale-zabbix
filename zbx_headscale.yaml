@@ -21,9 +21,7 @@ zabbix_export:
           preprocessing:
             - type: JAVASCRIPT
               parameters:
-                - |
-                  var value_list = JSON.parse(value);
-                  return value_list.length;
+                - 'return JSON.parse(value).length;'
           master_item:
             key: headscale.nodes.json
           tags:
@@ -103,6 +101,20 @@ zabbix_export:
               tags:
                 - tag: Application
                   value: Headscale
+        - uuid: f74ed6865f7749959ae51a96c66e6a14
+          name: 'Headscale: User Count'
+          type: DEPENDENT
+          key: headscale.users.count
+          delay: '0'
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - 'return JSON.parse(value).length;'
+          master_item:
+            key: headscale.users.json
+          tags:
+            - tag: Application
+              value: Headscale
         - uuid: 349445ec94884c7ca586c24fe8642b16
           name: 'Headscale: Users JSON List'
           key: headscale.users.json
